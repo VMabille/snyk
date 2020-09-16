@@ -18,6 +18,8 @@ import {
   execShell,
   ShellOutError,
   runGitLog,
+  CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
+  buildGitLogCommandLine,
 } from '../src/lib/monitor/dev-count-analysis';
 
 const expectedEmailHashes = {
@@ -147,7 +149,20 @@ test('runGitLog returns empty string and does not throw error when git log comma
   };
 
   try {
-    const gitLog = await runGitLog(123456789, '/some/fake/path', mockExecShell);
+    const dNow = new Date();
+    const timestampStartOfContributingDeveloperPeriod = getTimestampStartOfContributingDevTimeframe(
+      dNow,
+      CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
+    );
+
+    const gitLogCommand = buildGitLogCommandLine(
+      timestampStartOfContributingDeveloperPeriod,
+    );
+    const gitLog = await runGitLog(
+      gitLogCommand,
+      '/some/fake/path',
+      mockExecShell,
+    );
     t.equals(gitLog, '');
   } catch (e) {
     t.fail('should not throw');

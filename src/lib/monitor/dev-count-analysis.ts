@@ -140,13 +140,18 @@ export function getTimestampStartOfContributingDevTimeframe(
   return startOfPeriodEpochSeconds;
 }
 
-export async function runGitLog(
+export function buildGitLogCommandLine(
   timestampEpochSecondsStartOfPeriod: number,
+): string {
+  return `git --no-pager log --no-merges --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI" --after="${timestampEpochSecondsStartOfPeriod}"`;
+}
+
+export async function runGitLog(
+  gitLogCommand: string,
   repoPath: string,
   fnShellout: (cmd: string, workingDirectory: string) => Promise<string>,
 ): Promise<string> {
   try {
-    const gitLogCommand = `git --no-pager log --no-merges --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI" --after="${timestampEpochSecondsStartOfPeriod}"`;
     const gitLogStdout: string = await fnShellout(gitLogCommand, repoPath);
     return gitLogStdout;
   } catch {

@@ -41,6 +41,7 @@ import {
   runGitLog,
   GitRepoCommitStats,
   execShell,
+  buildGitLogCommandLine,
 } from '../../../lib/monitor/dev-count-analysis';
 import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
@@ -102,11 +103,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         dNow,
         CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
       );
-      const gitLogResults = await runGitLog(
+
+      const gitLogCommand = buildGitLogCommandLine(
         timestampStartOfContributingDeveloperPeriod,
-        repoPath,
-        execShell,
       );
+
+      const gitLogResults = await runGitLog(gitLogCommand, repoPath, execShell);
       const stats: GitRepoCommitStats = parseGitLog(gitLogResults);
       contributors = stats.getRepoContributors();
     } catch (err) {
